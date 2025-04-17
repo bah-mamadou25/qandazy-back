@@ -26,7 +26,7 @@ public class AuthManager implements AuthorizationManager<RequestAuthorizationCon
             if(requiredRoles ==null || requiredRoles.isEmpty()) {
                 return nonAuthorized;
             }
-
+            logger.info("requiredRoles: {}", requiredRoles);
             var hasRequiredRole = authentication.get().getAuthorities().stream()
                     .anyMatch(grantedAuthority -> requiredRoles.contains(grantedAuthority.getAuthority()));
             return hasRequiredRole ? authorized : nonAuthorized;

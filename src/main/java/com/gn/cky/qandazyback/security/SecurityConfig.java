@@ -17,19 +17,19 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public AuthJwtConverter authJwtConverter() {
-        return new AuthJwtConverter();
+    public AuthJwtConverter authJwtConverter(AuthRoleProvider authRoleProvider) {
+        return new AuthJwtConverter(authRoleProvider);
     }
 
     @Bean
     public AuthManager authManager() {
         var accessMap = new AccessMap();
-        accessMap.put(AntPathRequestMatcher.antMatcher("/api/v1/**"), List.of("USER"));
+        accessMap.put(AntPathRequestMatcher.antMatcher("/poc"), List.of("USER"));
         return new AuthManager(accessMap);
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, AuthRoleProvider roleProvider) throws Exception {
         return httpSecurity
                 .cors(Customizer.withDefaults())
                 .csrf(CsrfConfigurer::disable)
@@ -37,6 +37,6 @@ public class SecurityConfig {
                         .anyRequest().access(authManager()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(oauth2rs -> oauth2rs
-                        .jwt(configurer -> configurer.jwtAuthenticationConverter(authJwtConverter()))).build();
+                        .jwt(configurer -> configurer.jwtAuthenticationConverter(authJwtConverter(roleProvider)))).build();
     }
 }
